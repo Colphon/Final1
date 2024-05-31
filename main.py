@@ -2,7 +2,7 @@ from gui import *
 def main():
     window = Tk()
     window.title('VotingApp')
-    window.geometry('300x360')
+    window.geometry('300x450')
     window.resizable(False, False)
     Gui(window)
     window.mainloop()
