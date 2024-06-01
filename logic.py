@@ -7,9 +7,9 @@ def checkID(input) -> str:
     If the id is already listed in data.csv, a NameError is raised.
     :param input: The id of the voter.
     '''
-    id_eligible = re.match('^[a-zA-Z0-9]{7}$',input)
+    id_eligible = re.match('^[a-zA-Z0-9]{7}$',input.strip())
     if id_eligible:
-        id = input.lower()
+        id = input.lower().strip()
         with open('data.csv', 'r', newline='') as review:
             for line in review.readlines():
                 match = re.match(id, line)
@@ -26,7 +26,12 @@ def checkvote(input_vote, name) -> str:
     (or uses non-alphabet characters (except for the period used in a middle initial)), a SyntaxError is raised.
     :param input_vote: The person the voter voted for denoted as a value from 0-4 (0 means a radiobutton was not selected).
     :param name: The person the voter wrote down if they picked the write-in option. Is '' otherwise.
+    name is stripped, split, and then joined to remove extra whitespaces. The end product is name_modified.
     '''
+
+    name = name.strip()
+    name_change = name.split()
+    name_modified = ' '.join(name_change)
 
     if input_vote == 1:
         return 'Bianca T. Sparrow - D'
@@ -35,9 +40,9 @@ def checkvote(input_vote, name) -> str:
     elif input_vote == 3:
         return 'Felicia F. Soot - L'
     elif input_vote == 4:
-        name_check = re.match('^[A-Za-z]+( [A-Za-z]\\.)? [A-Za-z]+$', name)
+        name_check = re.match('^([A-Za-z]+) ([A-Za-z]\\.? )?([A-Za-z]+)$', name_modified)
         if name_check:
-            return name
+            return name_modified
         else:
             raise SyntaxError
 
