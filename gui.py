@@ -1,6 +1,5 @@
 from tkinter import *
-import csv
-
+import logic
 
 class Gui:
     def __init__(self, window):
@@ -15,10 +14,10 @@ class Gui:
         self.lineframe.pack()
 
         self.frame_two = Frame(self.lineframe)
-        self.input_name = Entry(self.frame_two, width=20)
+        self.input_ID = Entry(self.frame_two, width=20)
         self.label_name = Label(self.frame_two, text='ID')
         self.label_name.pack(side='left', padx=5)
-        self.input_name.pack(side='left', padx=5)
+        self.input_ID.pack(side='left', padx=5)
         self.frame_two.pack(padx=70, pady=20)
 
         self.lineframe2 = Frame(self.window, highlightbackground='gray', highlightthickness=0.5)
@@ -32,12 +31,12 @@ class Gui:
         self.frame_three.pack(side='top')
 
         self.frame_four = Frame(self.lineframe2)
-        self.stat_answer = IntVar()
-        self.stat_answer.set(0)
-        self.Bianca = Radiobutton(self.frame_four, text='  Bianca T. Sparrow - D', variable=self.stat_answer, value=1)
-        self.Edward = Radiobutton(self.frame_four, text='  Edward M. Green - R', variable=self.stat_answer, value=2)
-        self.Felicia = Radiobutton(self.frame_four, text='  Felicia F. Soot - L', variable=self.stat_answer, value=3)
-        self.Write_in = Radiobutton(self.frame_four, variable=self.stat_answer, value=4, command=self.enable)
+        self.answer = IntVar()
+        self.answer.set(0)
+        self.Bianca = Radiobutton(self.frame_four, text='  Bianca T. Sparrow - D', variable=self.answer, value=1, command=self.enable)
+        self.Edward = Radiobutton(self.frame_four, text='  Edward M. Green - R', variable=self.answer, value=2, command=self.enable)
+        self.Felicia = Radiobutton(self.frame_four, text='  Felicia F. Soot - L', variable=self.answer, value=3, command=self.enable)
+        self.Write_in = Radiobutton(self.frame_four, variable=self.answer, value=4, command=self.enable)
         self.Write_entry = Entry(self.frame_four, state='disabled')
         self.Write_label = Label(self.lineframe2, text='Write-in', font=('Segoe UI', 5))
         self.Bianca.pack(anchor='w', pady=5)
@@ -50,7 +49,7 @@ class Gui:
 
         self.frame_five = Frame(self.window)
         self.button_save = Button(self.frame_five, text='SUBMIT', command=self.submit)
-        self.button_save.pack(side='bottom', pady = 30)
+        self.button_save.pack(side='bottom', pady = 20)
         self.frame_five.pack()
 
         self.frame_six = Frame(self.window)
@@ -60,37 +59,35 @@ class Gui:
 
 
     def submit(self):
-        name = self.input_name.get()
-        if name == '':
-            name = 'Anonymous'
-        name = name.strip()
+        ID = self.input_ID.get()
+        vote = self.answer.get()
+        candidate=''
+        if vote == 4:
+            candidate = self.Write_entry.get()
         try:
-            age = self.input_name2.get()
-            age = int(age)
-            if age < 0:
-                raise ValueError
-            age = age * 10
-            status = self.stat_answer.get()
-            if status == 0:
-                status = 'NA'
-            elif status == 1:
-                status = 'Student'
-            elif status == 2:
-                status = 'Staff'
-            else:
-                status = 'Both'
-            with open('data.csv', 'a', newline='') as stuffout:
-                contentout = csv.writer(stuffout)
-                contentout.writerow([name, age, status])
-            self.input_name.delete(0, END)
-            self.input_name2.delete(0, END)
-            self.label_display.config(text='')
-            self.stat_answer.set(0)
-            self.input_name.focus()
+            checkedID = logic.checkID(ID)
+            checkedvote = logic.checkvote(vote, candidate)
+            logic.submitvote(checkedID, checkedvote)
+            self.label_display1.config(text='Vote Submitted', fg='green')
+            self.input_ID.delete(0, END)
+            self.Write_entry.delete(0, END)
+            self.answer.set(0)
+            self.input_ID.focus()
+
+        except TypeError:
+            self.label_display1.config(text='Enter seven character alphanumeric ID', fg='red')
+        except NameError:
+            self.label_display1.config(text='ID has already voted', fg='red')
         except ValueError:
-            self.label_display.config(text='Enter correct age value')
+            self.label_display1.config(text='No candidate has been picked', fg='red')
+        except SyntaxError:
+            self.label_display1.config(text='Please include the first and last name of the candidate', fg='red')
 
     def enable(self):
-        pass
+        if self.answer.get() == 4:
+            self.Write_entry.config(state='normal')
+        else:
+            self.Write_entry.config(state='disabled')
+
 
 
